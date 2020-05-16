@@ -1,4 +1,4 @@
-# rsync-parser
+# rsync_parser
 
 Parses the output of rsync when called with the `--itemize-changes` option. This
 allows you to programmatically identify files that got created, updated and

@@ -1,5 +1,5 @@
 // Copyright 2020 Daniel Araujo. All rights reserved. MIT license.
-import { RsyncItemizeChangesParser } from "../rsync-itemize-changes-parser.ts";
+import { RsyncItemizeChangesParser } from "../rsync_itemize_changes_parser.ts";
 
 const TEST_DIR = await Deno.makeTempDirSync();
 

@@ -5,7 +5,7 @@ import {
 } from "https://deno.land/std/testing/asserts.ts";
 import { StringReader } from "https://deno.land/std@v0.51.0/io/readers.ts";
 
-import { RsyncItemizeChangesParser } from "./rsync-itemize-changes-parser.ts";
+import { RsyncItemizeChangesParser } from "./rsync_itemize_changes_parser.ts";
 
 // Constructor options.
 ///////////////////////////////////////////////////////////////////////////////
