@@ -12,7 +12,7 @@ Requires no additional permissions.
 ```js
 import {
   RsyncItemizeChangesParser
-} from "https://raw.githubusercontent.com/daniel-araujo/deno-rsync-parser/v1.0.0/rsync-itemize-changes-parser.ts";
+} from "https://deno.land/x/rsync_parser@v2.0.0/mod.ts";
 
 const parser = new RsyncItemizeChangesParser(`
 cd+++++++++ src/
