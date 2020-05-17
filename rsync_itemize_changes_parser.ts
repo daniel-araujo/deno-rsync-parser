@@ -17,9 +17,10 @@ const RSYNC_TYPE_CHANGED = "c";
 // The item is a hard link to another item (requires --hard-links).
 const RSYNC_TYPE_INFO_HARD_LINK = "h";
 
-// The item is not being updated (though it might have attributes that are being
-// modified).
-const RSYNC_TYPE_NONE = ".";
+// The man page is very contradictory about this type. It says that this means
+// that the item is not being updated though it might have attributes that are
+// being modified.
+const RSYNC_TYPE_UNCHANGED = ".";
 
 // The rest of the itemized-output area contains a message (e.g. "deleting").
 const RSYNC_TYPE_MESSAGE = "*";
@@ -63,7 +64,7 @@ function rsyncFileTypeToOurFileType(rsyncFileType: string): FileType {
   }
 }
 
-type Token = TokenCreate | TokenUpdate | TokenDelete | TokenCannotDelete;
+type Token = TokenCreate | TokenUpdate | TokenDelete | TokenCannotDelete | TokenUnchanged;
 
 interface TokenCreate {
   type: "create";
@@ -101,6 +102,12 @@ interface TokenDelete {
 
 interface TokenCannotDelete {
   type: "cannotDelete";
+  path: string;
+  fileType: FileType;
+}
+
+interface TokenUnchanged {
+  type: "unchanged";
   path: string;
   fileType: FileType;
 }
@@ -158,6 +165,7 @@ export class RsyncItemizeChangesParser {
     } else if (
       Y == RSYNC_TYPE_SENT || Y === RSYNC_TYPE_RECEIVED ||
       Y === RSYNC_TYPE_INFO_HARD_LINK ||
+      Y === RSYNC_TYPE_UNCHANGED ||
       Y === RSYNC_TYPE_CHANGED
     ) {
       // File type.
@@ -169,7 +177,7 @@ export class RsyncItemizeChangesParser {
       let c = line[2];
 
       // Path is separated by a space from the codes.
-      let path = line.substring(line.indexOf(" ") + " ".length);
+      let path = line.substring("YXcstpoguax".length + " ".length);
 
       let hardlink = Y === RSYNC_TYPE_INFO_HARD_LINK;
       let hardlinkPath = (() => {
@@ -192,7 +200,13 @@ export class RsyncItemizeChangesParser {
         return null;
       })();
 
-      if (c === "+") {
+      if (c === " ") {
+        return {
+          type: "unchanged",
+          path: path,
+          fileType: rsyncFileTypeToOurFileType(X),
+        };
+      } else if (c === "+") {
         return {
           type: "create",
           local: Y == RSYNC_TYPE_CHANGED,
