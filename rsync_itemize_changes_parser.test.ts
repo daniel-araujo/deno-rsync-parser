@@ -97,6 +97,8 @@ Deno.test("read: recognizes local creation of a file", async () => {
   assertStrictEq(token.local, true);
   assertStrictEq(token.received, false);
   assertStrictEq(token.sent, false);
+  assertStrictEq(token.hardlink, false);
+  assertStrictEq(token.hardlinkPath, null);
   assertStrictEq(token.path, "path");
   assertStrictEq(token.fileType, "file");
 });
@@ -112,6 +114,8 @@ Deno.test("read: recognizes local creation of a directory", async () => {
   assertStrictEq(token.local, true);
   assertStrictEq(token.received, false);
   assertStrictEq(token.sent, false);
+  assertStrictEq(token.hardlink, false);
+  assertStrictEq(token.hardlinkPath, null);
   assertStrictEq(token.path, "path");
   assertStrictEq(token.fileType, "directory");
 });
@@ -127,6 +131,8 @@ Deno.test("read: recognizes local creation of a symbolic link", async () => {
   assertStrictEq(token.local, true);
   assertStrictEq(token.received, false);
   assertStrictEq(token.sent, false);
+  assertStrictEq(token.hardlink, false);
+  assertStrictEq(token.hardlinkPath, null);
   assertStrictEq(token.path, "path");
   assertStrictEq(token.fileType, "symlink");
 });
@@ -142,6 +148,8 @@ Deno.test("read: recognizes local creation of device", async () => {
   assertStrictEq(token.local, true);
   assertStrictEq(token.received, false);
   assertStrictEq(token.sent, false);
+  assertStrictEq(token.hardlink, false);
+  assertStrictEq(token.hardlinkPath, null);
   assertStrictEq(token.path, "path");
   assertStrictEq(token.fileType, "device");
 });
@@ -157,6 +165,8 @@ Deno.test("read: recognizes local creation of special file", async () => {
   assertStrictEq(token.local, true);
   assertStrictEq(token.received, false);
   assertStrictEq(token.sent, false);
+  assertStrictEq(token.hardlink, false);
+  assertStrictEq(token.hardlinkPath, null);
   assertStrictEq(token.path, "path");
   assertStrictEq(token.fileType, "special");
 });
@@ -184,10 +194,8 @@ Deno.test("read: reads path with spaces in local create", async () => {
 });
 ///////////////////////////////////////////////////////////////////////////////
 
-// File transfers
-///////////////////////////////////////////////////////////////////////////////
-
 // Common tests for sent and received files.
+///////////////////////////////////////////////////////////////////////////////
 for (let code of [">", "<"]) {
   Deno.test(`read: (${code}) transfers new file`, async () => {
     let output = `${code}f+++++++++ path
@@ -200,6 +208,7 @@ for (let code of [">", "<"]) {
     assertStrictEq(token.local, false);
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, false);
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "file");
   });
@@ -215,6 +224,7 @@ for (let code of [">", "<"]) {
     assertStrictEq(token.local, false);
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, false);
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "directory");
   });
@@ -230,6 +240,7 @@ for (let code of [">", "<"]) {
     assertStrictEq(token.local, false);
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, false);
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "symlink");
   });
@@ -245,6 +256,7 @@ for (let code of [">", "<"]) {
     assertStrictEq(token.local, false);
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, false);
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "device");
   });
@@ -260,10 +272,15 @@ for (let code of [">", "<"]) {
     assertStrictEq(token.local, false);
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, false);
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "special");
   });
+}
 
+// Common path recognition.
+///////////////////////////////////////////////////////////////////////////////
+for (let code of [">", "<", "h"]) {
   Deno.test(`read: (${code}) reads path with spaces in remote create`, async () => {
     let output = `${code}f+++++++++ path with spaces
 `;
@@ -307,7 +324,11 @@ for (let code of [">", "<"]) {
     assert(token !== null && token.type === "update");
     assertStrictEq(token.path, "path/with/spaces");
   });
+}
 
+// Common update attributes
+///////////////////////////////////////////////////////////////////////////////
+for (let code of [">", "<", "h"]) {
   Deno.test(`read: (${code}) transfers updates to a file`, async () => {
     let output = `${code}f.st...... path
 `;
@@ -318,6 +339,7 @@ for (let code of [">", "<"]) {
     assert(token !== null && token.type === "update");
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, code === "h");
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "file");
   });
@@ -332,6 +354,7 @@ for (let code of [">", "<"]) {
     assert(token !== null && token.type === "update");
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, code === "h");
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "directory");
   });
@@ -346,6 +369,7 @@ for (let code of [">", "<"]) {
     assert(token !== null && token.type === "update");
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, code === "h");
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "symlink");
   });
@@ -360,6 +384,7 @@ for (let code of [">", "<"]) {
     assert(token !== null && token.type === "update");
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, code === "h");
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "device");
   });
@@ -374,6 +399,7 @@ for (let code of [">", "<"]) {
     assert(token !== null && token.type === "update");
     assertStrictEq(token.received, code === ">");
     assertStrictEq(token.sent, code === "<");
+    assertStrictEq(token.hardlink, code === "h");
     assertStrictEq(token.path, "path");
     assertStrictEq(token.fileType, "special");
   });
@@ -597,6 +623,63 @@ Deno.test("read: correctly parses path with spaces when failing to delete direct
   let token = await parser.read();
   assert(token !== null && token.type === "cannotDelete");
   assertStrictEq(token.path, "path with spaces");
+});
+///////////////////////////////////////////////////////////////////////////////
+
+// Hard link
+///////////////////////////////////////////////////////////////////////////////
+Deno.test("read: recognizes hard link creation", async () => {
+  let output = `
+>f+++++++++ file
+hf+++++++++ hardlink => file
+`;
+  let parser = new RsyncItemizeChangesParser(output);
+
+  // Skip normal file creation. This is not what we want to test.
+  await parser.read();
+
+  let token = await parser.read();
+  assert(token !== null && token.type === "create");
+  assertStrictEq(token.path, "hardlink");
+  assertStrictEq(token.hardlink, true);
+  assertStrictEq(token.hardlinkPath, "file");
+});
+
+Deno.test("read: recognizes hard link update with no hard link path", async () => {
+  let output = `
+>f..t...... file
+hf..t...... hardlink
+`;
+  let parser = new RsyncItemizeChangesParser(output);
+
+  // Skip normal file update. This is not what we want to test.
+  await parser.read();
+
+  let token = await parser.read();
+  assert(token !== null && token.type === "update");
+  assertStrictEq(token.path, "hardlink");
+  assertStrictEq(token.hardlink, true);
+  assertStrictEq(token.hardlinkPath, null);
+});
+
+Deno.test("read: recognizes hard link update with hard link path", async () => {
+  // hardlink was linked to file, changed to file2.
+  let output = `
+>f..t...... file
+>f..t...... file2
+hf..t...... hardlink => file2
+`;
+  let parser = new RsyncItemizeChangesParser(output);
+
+  // Skip normal file update. This is not what we want to test.
+  await parser.read();
+  await parser.read();
+
+  let token = await parser.read();
+  assert(token !== null && token.type === "update");
+  assertStrictEq(token.path, "hardlink");
+  assertStrictEq(token.hardlink, true);
+  assertStrictEq(token.hardlinkPath, "file2");
 });
 ///////////////////////////////////////////////////////////////////////////////
 

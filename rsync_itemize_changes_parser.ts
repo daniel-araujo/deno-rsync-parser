@@ -70,6 +70,8 @@ interface TokenCreate {
   local: boolean;
   sent: boolean;
   received: boolean;
+  hardlink: boolean;
+  hardlinkPath: string | null;
   path: string;
   fileType: FileType;
 }
@@ -78,6 +80,8 @@ interface TokenUpdate {
   type: "update";
   sent: boolean;
   received: boolean;
+  hardlink: boolean;
+  hardlinkPath: string | null;
   checksum: boolean;
   size: boolean;
   timestamp: boolean;
@@ -153,6 +157,7 @@ export class RsyncItemizeChangesParser {
       };
     } else if (
       Y == RSYNC_TYPE_SENT || Y === RSYNC_TYPE_RECEIVED ||
+      Y === RSYNC_TYPE_INFO_HARD_LINK ||
       Y === RSYNC_TYPE_CHANGED
     ) {
       // File type.
@@ -164,7 +169,28 @@ export class RsyncItemizeChangesParser {
       let c = line[2];
 
       // Path is separated by a space from the codes.
-      let path = line.substring(line.indexOf(" ") + 1);
+      let path = line.substring(line.indexOf(" ") + " ".length);
+
+      let hardlink = Y === RSYNC_TYPE_INFO_HARD_LINK;
+      let hardlinkPath = (() => {
+        if (Y === RSYNC_TYPE_INFO_HARD_LINK) {
+          // The path may also contain information about the hard link.
+          let hardLinkSeparatorIndex = path.indexOf(" => ");
+          if (hardLinkSeparatorIndex !== -1) {
+            // It is present. We can retrieve it.
+            let hardlinkPath = path.substring(
+              hardLinkSeparatorIndex + " => ".length,
+            );
+
+            // The hard link information needs to be removed from path.
+            path = path.substring(0, hardLinkSeparatorIndex);
+
+            return hardlinkPath;
+          }
+        }
+
+        return null;
+      })();
 
       if (c === "+") {
         return {
@@ -172,6 +198,8 @@ export class RsyncItemizeChangesParser {
           local: Y == RSYNC_TYPE_CHANGED,
           sent: Y == RSYNC_TYPE_SENT,
           received: Y === RSYNC_TYPE_RECEIVED,
+          hardlink: hardlink,
+          hardlinkPath: hardlinkPath,
           path: path,
           fileType: rsyncFileTypeToOurFileType(X),
         };
@@ -208,6 +236,8 @@ export class RsyncItemizeChangesParser {
             type: "update",
             sent: Y == RSYNC_TYPE_SENT,
             received: Y === RSYNC_TYPE_RECEIVED,
+            hardlink: hardlink,
+            hardlinkPath: hardlinkPath,
             checksum: c === "c",
             size: s === "s",
             timestamp: t === "t" || t === "T",
