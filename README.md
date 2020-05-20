@@ -49,7 +49,7 @@ for await (const token of parser) {
 
 ## Contributing
 
-The easiest way to contribute is by starring this project on GitHub:
+The easiest way to contribute is by starring this project on GitHub!
 
 https://github.com/daniel-araujo/deno-rsync-parser
 
