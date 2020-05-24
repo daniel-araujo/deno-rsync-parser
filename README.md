@@ -56,3 +56,9 @@ https://github.com/daniel-araujo/deno-rsync-parser
 If you've found a bug, would like to suggest a feature or need help, feel free to create an issue:
 
 https://github.com/daniel-araujo/deno-rsync-parser/issues
+
+
+## See also
+
+Node.js version of this library:
+https://www.npmjs.com/package/rsync-parser
