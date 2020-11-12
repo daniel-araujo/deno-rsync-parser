@@ -57,6 +57,12 @@ async function runCode(code: string) {
   }
 }
 
+/** Replaces imports to remote code with imports to local code. */
+function naiveUseLocalCode(code: String) {
+  let dir = new URL('.', import.meta.url).pathname;
+  return code.replace(/https:\/\/deno.land\/x\/rsync_parser@.+\/mod.ts/, dir + './mod.ts');
+}
+
 Deno.test("main example produces expected output", async () => {
   let expectedOutput = `Created src/
 Created src/index.js
@@ -69,6 +75,9 @@ Deleted package-lock.json
 
   try {
     let code = await naiveCodeExtraction(readme);
+
+    // The example uses remote URL. Here we want to test against local changes.
+    code = naiveUseLocalCode(code);
 
     let output = await runCode(code);
 
