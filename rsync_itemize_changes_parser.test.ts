@@ -1,9 +1,9 @@
 // Copyright 2020 Daniel Araujo. All rights reserved. MIT license.
 import {
   assert,
-  assertStrictEq,
-} from "https://deno.land/std/testing/asserts.ts";
-import { StringReader } from "https://deno.land/std@v0.51.0/io/readers.ts";
+  assertStrictEquals,
+} from "https://deno.land/std@0.77.0/testing/asserts.ts";
+import { StringReader } from "https://deno.land/std@0.77.0/io/readers.ts";
 
 import { RsyncItemizeChangesParser } from "./rsync_itemize_changes_parser.ts";
 
@@ -19,7 +19,7 @@ Deno.test("constructor: reads from a stream", async () => {
   assert(token !== null && token.type === "create");
 
   let token2 = await parser.read();
-  assertStrictEq(token2, null);
+  assertStrictEquals(token2, null);
 });
 
 Deno.test("constructor: reads from a string", async () => {
@@ -32,7 +32,7 @@ Deno.test("constructor: reads from a string", async () => {
   assert(token !== null && token.type === "create");
 
   let token2 = await parser.read();
-  assertStrictEq(token2, null);
+  assertStrictEquals(token2, null);
 });
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -47,11 +47,11 @@ Deno.test("read: consumes enough to find a token, leaves remaining output for th
 
   let token = await parser.read();
   assert(token !== null && token.type === "create");
-  assertStrictEq(token.fileType, "directory");
+  assertStrictEquals(token.fileType, "directory");
 
   let token2 = await parser.read();
   assert(token2 !== null && token2.type === "update");
-  assertStrictEq(token2.fileType, "file");
+  assertStrictEquals(token2.fileType, "file");
 });
 
 Deno.test("read: skips content that it cannot interpret", async () => {
@@ -64,11 +64,11 @@ cstarts with a c
 
   let token = await parser.read();
   assert(token !== null && token.type === "create");
-  assertStrictEq(token.fileType, "directory");
+  assertStrictEquals(token.fileType, "directory");
 
   let token2 = await parser.read();
   assert(token2 !== null && token2.type === "update");
-  assertStrictEq(token2.fileType, "file");
+  assertStrictEquals(token2.fileType, "file");
 });
 
 Deno.test("read: returns null when no more tokens exist", async () => {
@@ -80,7 +80,7 @@ Deno.test("read: returns null when no more tokens exist", async () => {
   await parser.read();
 
   let token = await parser.read();
-  assertStrictEq(token, null);
+  assertStrictEquals(token, null);
 });
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -95,12 +95,12 @@ for (let code of ["c", ">", "<"]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "create");
-    assertStrictEq(token.local, code === "c");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, false);
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "file");
+    assertStrictEquals(token.local, code === "c");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, false);
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "file");
   });
 
   Deno.test(`read: (${code}) transfers new directory`, async () => {
@@ -111,12 +111,12 @@ for (let code of ["c", ">", "<"]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "create");
-    assertStrictEq(token.local, code === "c");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, false);
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "directory");
+    assertStrictEquals(token.local, code === "c");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, false);
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "directory");
   });
 
   Deno.test(`read: (${code}) transfers new symbolic link`, async () => {
@@ -127,12 +127,12 @@ for (let code of ["c", ">", "<"]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "create");
-    assertStrictEq(token.local, code === "c");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, false);
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "symlink");
+    assertStrictEquals(token.local, code === "c");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, false);
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "symlink");
   });
 
   Deno.test(`read: (${code}) transfers new device`, async () => {
@@ -143,12 +143,12 @@ for (let code of ["c", ">", "<"]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "create");
-    assertStrictEq(token.local, code === "c");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, false);
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "device");
+    assertStrictEquals(token.local, code === "c");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, false);
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "device");
   });
 
   Deno.test(`read: (${code}) transfers new special file`, async () => {
@@ -159,12 +159,12 @@ for (let code of ["c", ">", "<"]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "create");
-    assertStrictEq(token.local, code === "c");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, false);
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "special");
+    assertStrictEquals(token.local, code === "c");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, false);
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "special");
   });
 }
 
@@ -179,7 +179,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "create");
-    assertStrictEq(token.path, "path with spaces");
+    assertStrictEquals(token.path, "path with spaces");
   });
 
   Deno.test(`read: (${code}) reads path with spaces in remote update`, async () => {
@@ -190,7 +190,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.path, "path with spaces");
+    assertStrictEquals(token.path, "path with spaces");
   });
 
   Deno.test(`read: (${code}) reads path with slashes in remote create`, async () => {
@@ -201,7 +201,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "create");
-    assertStrictEq(token.path, "path/with/spaces");
+    assertStrictEquals(token.path, "path/with/spaces");
   });
 
   Deno.test(`read: (${code}) reads path with slashes in remote update`, async () => {
@@ -212,7 +212,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.path, "path/with/spaces");
+    assertStrictEquals(token.path, "path/with/spaces");
   });
 }
 
@@ -227,11 +227,11 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, code === "h");
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "file");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, code === "h");
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "file");
   });
 
   Deno.test(`read: (${code}) transfers updates to a directory`, async () => {
@@ -242,11 +242,11 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, code === "h");
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "directory");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, code === "h");
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "directory");
   });
 
   Deno.test(`read: (${code}) transfers updates to a symbolic link`, async () => {
@@ -257,11 +257,11 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, code === "h");
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "symlink");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, code === "h");
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "symlink");
   });
 
   Deno.test(`read: (${code}) transfers updates to a device`, async () => {
@@ -272,11 +272,11 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, code === "h");
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "device");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, code === "h");
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "device");
   });
 
   Deno.test(`read: (${code}) transfers updates to a special file`, async () => {
@@ -287,11 +287,11 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.received, code === ">");
-    assertStrictEq(token.sent, code === "<");
-    assertStrictEq(token.hardlink, code === "h");
-    assertStrictEq(token.path, "path");
-    assertStrictEq(token.fileType, "special");
+    assertStrictEquals(token.received, code === ">");
+    assertStrictEquals(token.sent, code === "<");
+    assertStrictEquals(token.hardlink, code === "h");
+    assertStrictEquals(token.path, "path");
+    assertStrictEquals(token.fileType, "special");
   });
 
   Deno.test(`read: (${code}) sets checksum to true when checksum is reported to have changed`, async () => {
@@ -302,7 +302,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.checksum, true);
+    assertStrictEquals(token.checksum, true);
   });
 
   Deno.test(`read: (${code}) sets checksum to false if checksum is not reported in update`, async () => {
@@ -312,7 +312,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.checksum, false);
+    assertStrictEquals(token.checksum, false);
   });
 
   Deno.test(`read: (${code}) sets size to true if different size is reported in update`, async () => {
@@ -322,7 +322,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.size, true);
+    assertStrictEquals(token.size, true);
   });
 
   Deno.test(`read: (${code}) sets size to false if different size is not reported in update`, async () => {
@@ -332,7 +332,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.size, false);
+    assertStrictEquals(token.size, false);
   });
 
   Deno.test(`read: (${code}) sets timestamp to true if different timestamp is reported in update`, async () => {
@@ -342,7 +342,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.timestamp, true);
+    assertStrictEquals(token.timestamp, true);
   });
 
   Deno.test(`read: (${code}) sets timestamp to true when transfer time flag T is reported`, async () => {
@@ -352,7 +352,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.timestamp, true);
+    assertStrictEquals(token.timestamp, true);
   });
 
   Deno.test(`read: (${code}) sets timestamp to false if timestamp is not reported in update`, async () => {
@@ -362,7 +362,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.timestamp, false);
+    assertStrictEquals(token.timestamp, false);
   });
 
   Deno.test(`read: (${code}) sets permissions to true if permissions were changed in update`, async () => {
@@ -372,7 +372,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.permissions, true);
+    assertStrictEquals(token.permissions, true);
   });
 
   Deno.test(`read: (${code}) sets permissions to false if permissions were not changed in update`, async () => {
@@ -382,7 +382,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.permissions, false);
+    assertStrictEquals(token.permissions, false);
   });
 
   Deno.test(`read: (${code}) sets owner to true if owner were changed in update`, async () => {
@@ -392,7 +392,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.owner, true);
+    assertStrictEquals(token.owner, true);
   });
 
   Deno.test(`read: (${code}) sets owner to false if owner were not changed in update`, async () => {
@@ -402,7 +402,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.owner, false);
+    assertStrictEquals(token.owner, false);
   });
 
   Deno.test(`read: (${code}) sets group to true if group were changed in update`, async () => {
@@ -412,7 +412,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.group, true);
+    assertStrictEquals(token.group, true);
   });
 
   Deno.test(`read: (${code}) sets group to false if group were not changed in update`, async () => {
@@ -422,7 +422,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.group, false);
+    assertStrictEquals(token.group, false);
   });
 
   Deno.test(`read: (${code}) sets acl to true if acl were changed in update`, async () => {
@@ -432,7 +432,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.acl, true);
+    assertStrictEquals(token.acl, true);
   });
 
   Deno.test(`read: (${code}) sets acl to false if acl were not changed in update`, async () => {
@@ -442,7 +442,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.acl, false);
+    assertStrictEquals(token.acl, false);
   });
 
   Deno.test(`read: (${code}) sets xattr to true if extended attributes were changed in update`, async () => {
@@ -452,7 +452,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.xattr, true);
+    assertStrictEquals(token.xattr, true);
   });
 
   Deno.test(`read: (${code}) sets xattr to false if extended attributes were not changed in update`, async () => {
@@ -462,7 +462,7 @@ for (let code of [">", "<", "h", "."]) {
 
     let token = await parser.read();
     assert(token !== null && token.type === "update");
-    assertStrictEq(token.xattr, false);
+    assertStrictEquals(token.xattr, false);
   });
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -476,7 +476,7 @@ Deno.test("read: recognizes deleted file", async () => {
 
   let token = await parser.read();
   assert(token !== null && token.type === "delete");
-  assertStrictEq(token.path, "path");
+  assertStrictEquals(token.path, "path");
 });
 
 Deno.test("read: recognizes failure to delete directory", async () => {
@@ -491,8 +491,8 @@ Deno.test("read: recognizes failure to delete directory", async () => {
 
   let token = await parser.read();
   assert(token !== null && token.type === "cannotDelete");
-  assertStrictEq(token.path, "path");
-  assertStrictEq(token.fileType, "directory");
+  assertStrictEquals(token.path, "path");
+  assertStrictEquals(token.fileType, "directory");
 });
 
 Deno.test("read: correctly parses path with slashes when failing to delete directory", async () => {
@@ -502,7 +502,7 @@ Deno.test("read: correctly parses path with slashes when failing to delete direc
 
   let token = await parser.read();
   assert(token !== null && token.type === "cannotDelete");
-  assertStrictEq(token.path, "path/with/slashes");
+  assertStrictEquals(token.path, "path/with/slashes");
 });
 
 Deno.test("read: correctly parses path with spaces when failing to delete directory", async () => {
@@ -512,7 +512,7 @@ Deno.test("read: correctly parses path with spaces when failing to delete direct
 
   let token = await parser.read();
   assert(token !== null && token.type === "cannotDelete");
-  assertStrictEq(token.path, "path with spaces");
+  assertStrictEquals(token.path, "path with spaces");
 });
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -530,9 +530,9 @@ hf+++++++++ hardlink => file
 
   let token = await parser.read();
   assert(token !== null && token.type === "create");
-  assertStrictEq(token.path, "hardlink");
-  assertStrictEq(token.hardlink, true);
-  assertStrictEq(token.hardlinkPath, "file");
+  assertStrictEquals(token.path, "hardlink");
+  assertStrictEquals(token.hardlink, true);
+  assertStrictEquals(token.hardlinkPath, "file");
 });
 
 Deno.test("read: recognizes hard link update with no hard link path", async () => {
@@ -547,9 +547,9 @@ hf..t...... hardlink
 
   let token = await parser.read();
   assert(token !== null && token.type === "update");
-  assertStrictEq(token.path, "hardlink");
-  assertStrictEq(token.hardlink, true);
-  assertStrictEq(token.hardlinkPath, null);
+  assertStrictEquals(token.path, "hardlink");
+  assertStrictEquals(token.hardlink, true);
+  assertStrictEquals(token.hardlinkPath, null);
 });
 
 Deno.test("read: recognizes hard link update with hard link path", async () => {
@@ -567,9 +567,9 @@ hf..t...... hardlink => file2
 
   let token = await parser.read();
   assert(token !== null && token.type === "update");
-  assertStrictEq(token.path, "hardlink");
-  assertStrictEq(token.hardlink, true);
-  assertStrictEq(token.hardlinkPath, "file2");
+  assertStrictEquals(token.path, "hardlink");
+  assertStrictEquals(token.hardlink, true);
+  assertStrictEquals(token.hardlinkPath, "file2");
 });
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -583,8 +583,8 @@ Deno.test("read: recognizes unchanged file", async () => {
 
   let token = await parser.read();
   assert(token !== null && token.type === "unchanged");
-  assertStrictEq(token.fileType, "file");
-  assertStrictEq(token.path, "file");
+  assertStrictEquals(token.fileType, "file");
+  assertStrictEquals(token.path, "file");
 });
 
 Deno.test("read: recognizes unchanged directory", async () => {
@@ -595,8 +595,8 @@ Deno.test("read: recognizes unchanged directory", async () => {
 
   let token = await parser.read();
   assert(token !== null && token.type === "unchanged");
-  assertStrictEq(token.fileType, "directory");
-  assertStrictEq(token.path, "file");
+  assertStrictEquals(token.fileType, "directory");
+  assertStrictEquals(token.path, "file");
 });
 
 Deno.test("read: recognizes unchanged symbolic link", async () => {
@@ -607,8 +607,8 @@ Deno.test("read: recognizes unchanged symbolic link", async () => {
 
   let token = await parser.read();
   assert(token !== null && token.type === "unchanged");
-  assertStrictEq(token.fileType, "symlink");
-  assertStrictEq(token.path, "file");
+  assertStrictEquals(token.fileType, "symlink");
+  assertStrictEquals(token.path, "file");
 });
 
 Deno.test("read: recognizes unchanged device", async () => {
@@ -619,8 +619,8 @@ Deno.test("read: recognizes unchanged device", async () => {
 
   let token = await parser.read();
   assert(token !== null && token.type === "unchanged");
-  assertStrictEq(token.fileType, "device");
-  assertStrictEq(token.path, "file");
+  assertStrictEquals(token.fileType, "device");
+  assertStrictEquals(token.path, "file");
 });
 
 Deno.test("read: recognizes unchanged special file", async () => {
@@ -631,8 +631,8 @@ Deno.test("read: recognizes unchanged special file", async () => {
 
   let token = await parser.read();
   assert(token !== null && token.type === "unchanged");
-  assertStrictEq(token.fileType, "special");
-  assertStrictEq(token.path, "file");
+  assertStrictEquals(token.fileType, "special");
+  assertStrictEquals(token.path, "file");
 });
 
 Deno.test("read: does not mistake confusing modification for unchanged", async () => {
@@ -662,16 +662,16 @@ Deno.test("for await...of is equivalent to calling read multiple times", async (
 
     if (iterations === 1) {
       assert(token !== null && token.type === "create");
-      assertStrictEq(token.fileType, "directory");
+      assertStrictEquals(token.fileType, "directory");
     }
 
     if (iterations === 2) {
       assert(token !== null && token.type === "update");
-      assertStrictEq(token.fileType, "file");
+      assertStrictEquals(token.fileType, "file");
     }
   }
 
-  assertStrictEq(iterations, 2);
+  assertStrictEquals(iterations, 2);
 });
 
 Deno.test("after using for await...of it does not rewind", async () => {
@@ -690,6 +690,6 @@ cd+++++++++ file2
     console.log(_);
   }
 
-  assertStrictEq(iterations, 0);
+  assertStrictEquals(iterations, 0);
 });
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 // Copyright 2020 Daniel Araujo. All rights reserved. MIT license.
-import { StringReader } from "https://deno.land/std@v0.51.0/io/readers.ts";
-import { readLines } from "https://deno.land/std@v0.51.0/io/bufio.ts";
+import { StringReader } from "https://deno.land/std@0.77.0/io/readers.ts";
+import { readLines } from "https://deno.land/std@0.77.0/io/bufio.ts";
 
 // Rsync operation types
 ///////////////////////////////////////////////////////////////////////////////

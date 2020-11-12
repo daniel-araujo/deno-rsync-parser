@@ -1,6 +1,6 @@
 // Copyright 2020 Daniel Araujo. All rights reserved. MIT license.
-import { assertStrictEq } from "https://deno.land/std/testing/asserts.ts";
-import { readLines } from "https://deno.land/std@v0.51.0/io/bufio.ts";
+import { assertStrictEquals } from "https://deno.land/std@0.77.0/testing/asserts.ts";
+import { readLines } from "https://deno.land/std@0.77.0/io/bufio.ts";
 
 /** Extracts main code block from readme file. */
 async function naiveCodeExtraction(file: Deno.File) {
@@ -72,7 +72,7 @@ Deleted package-lock.json
 
     let output = await runCode(code);
 
-    assertStrictEq(output, expectedOutput);
+    assertStrictEquals(output, expectedOutput);
   } finally {
     readme.close();
   }
